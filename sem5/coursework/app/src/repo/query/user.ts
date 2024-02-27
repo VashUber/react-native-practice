@@ -11,5 +11,5 @@ export const getUser = async (db: SQLiteDatabase) => {
     user = (rows[0] as UserDbI | undefined) ?? null
   })
 
-  return user!
+  return user
 }

@@ -1,8 +1,8 @@
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { SQLiteDatabase } from 'expo-sqlite'
 
-export const userSlice = createSlice({
-  name: 'db',
+export const databaseSlice = createSlice({
+  name: 'database',
   initialState: {
     db: null! as SQLiteDatabase
   },
@@ -13,5 +13,5 @@ export const userSlice = createSlice({
   }
 })
 
-export const { setDatabase } = userSlice.actions
-export const userReducer = userSlice.reducer
+export const { setDatabase } = databaseSlice.actions
+export const databaseReducer = databaseSlice.reducer
