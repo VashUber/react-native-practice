@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 
 import { Button } from '~/components/main/training/Button'
+import { songsMap } from '~/constants'
 import { RootState } from '~/redux'
 
 export const MainScreen = () => {
@@ -15,6 +16,7 @@ export const MainScreen = () => {
   const [currentRoundsCount, setCurrentRoundsCount] = useState(1)
   const stages = useSelector((state: RootState) => state.settingsReducer.stages)
   const rounds = useSelector((state: RootState) => state.settingsReducer.settings.rounds)
+  const music = useSelector((state: RootState) => state.settingsReducer.settings.music)
   const currentStage = useMemo(() => stages[currentStagePointer], [currentStagePointer])
 
   const insets = useSafeAreaInsets()
@@ -58,8 +60,9 @@ export const MainScreen = () => {
 
   useEffect(() => {
     const setupSound = async () => {
-      const { default: audio } = await import('~/assets/songs/calming.mp3')
+      const { default: audio } = await songsMap[music].src
       const { sound: s } = await Audio.Sound.createAsync(audio)
+      s.setIsLoopingAsync(true)
       setSound(s)
     }
 

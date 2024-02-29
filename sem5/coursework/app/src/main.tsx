@@ -21,6 +21,7 @@ const Tab = createBottomTabNavigator()
 const getTabScreenOptions = (icon: IonicIconT): BottomTabNavigationOptions => ({
   tabBarActiveTintColor: '#0077B6',
   tabBarInactiveTintColor: '#0077B6',
+  unmountOnBlur: true,
   tabBarIcon: ({ size, focused, color }) => {
     return <Icon name={focused ? icon : (`${icon}-outline` as IonicIconT)} size={size} color={color} />
   }

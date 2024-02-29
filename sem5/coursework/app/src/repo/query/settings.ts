@@ -1,11 +1,11 @@
 import { database } from '../sqlite'
 
-import { songs } from '~/constants'
+import { songsType } from '~/constants'
 import { SettingDbI, SettingsI } from '~/models/db'
 
 const defaultSetting = {
   id: 1,
-  music: songs[0].type,
+  music: songsType[0],
   rounds: 3,
   breaths_count: 30,
   breath_holding: 60 * 1000,

@@ -1,6 +1,6 @@
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit'
 
-import { exhalationTime, inhaleTime } from '~/constants'
+import { exhalationTime, inhaleTime, songsType } from '~/constants'
 import { SettingsI } from '~/models/db'
 import { StageI } from '~/models/training'
 
@@ -10,7 +10,7 @@ export const settingsSlice = createSlice({
     stages: [] as StageI[],
     settings: {
       id: 0,
-      music: '',
+      music: songsType[0],
       rounds: 0,
       breathsCount: 0,
       breathHolding: 0,
