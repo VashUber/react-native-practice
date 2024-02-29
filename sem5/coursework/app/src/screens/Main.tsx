@@ -66,13 +66,16 @@ export const MainScreen = () => {
       setSound(s)
     }
 
+    setupSound()
+  }, [music])
+
+  useEffect(() => {
     const setupVideo = async () => {
       const { default: video } = await import('~/assets/background/gradient.mp4')
       setVideoSource(video)
     }
 
     setupVideo()
-    setupSound()
   }, [])
 
   useEffect(() => {

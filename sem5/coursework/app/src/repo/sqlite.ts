@@ -1,6 +1,6 @@
 import * as SQLite from 'expo-sqlite'
 
-export const openDatabase = () => SQLite.openDatabase('database123.db')
+export const openDatabase = () => SQLite.openDatabase('database111112.db')
 
 export const setupDb = async (db: SQLite.SQLiteDatabase) => {
   await db.transactionAsync(async tx => {

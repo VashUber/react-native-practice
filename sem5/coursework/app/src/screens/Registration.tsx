@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { TextInput, Text, Button, StyleSheet, View } from 'react-native'
+import { Text, Button, StyleSheet, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
+import { TextInputWithLabel } from '~/components/common/TextInputWithLabel'
 import { DefaultLayout } from '~/layout'
+import { setSettings } from '~/redux/stores/settings'
 import { setUser } from '~/redux/stores/user'
-import { createSettings } from '~/repo/query/settings'
+import { createSettings, getSettings } from '~/repo/query/settings'
 import { createUser, getUser } from '~/repo/query/users'
-import { globalStyles } from '~/styles/global'
 
 export const RegistrationScreen = () => {
   const dispatch = useDispatch()
@@ -21,13 +22,14 @@ export const RegistrationScreen = () => {
     if (user) {
       dispatch(setUser(user))
     }
+    dispatch(setSettings(await getSettings()))
   }
 
   return (
     <DefaultLayout>
       <View style={styles['registration-screen']}>
         <Text style={styles['registration-screen__title']}>Регистрация</Text>
-        <TextInput style={globalStyles.input} placeholder="Имя" value={name} onChangeText={setName} />
+        <TextInputWithLabel value={name} label="Имя" onChangeText={setName} />
 
         <Button title="Войти" onPress={runRegistration} />
       </View>

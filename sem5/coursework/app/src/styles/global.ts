@@ -9,7 +9,8 @@ export const globalStyles = StyleSheet.create({
     backgroundColor: '#e6e6e6'
   },
   'input-wrapper': {
-    gap: 2
+    gap: 2,
+    width: '100%'
   },
   'input-label': {}
 })
