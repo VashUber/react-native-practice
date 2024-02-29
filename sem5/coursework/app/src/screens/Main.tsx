@@ -2,33 +2,19 @@ import { Audio, Video, ResizeMode } from 'expo-av'
 import { useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View, Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSelector } from 'react-redux'
 
 import { Button } from '~/components/main/training/Button'
-import { exhalationTime, inhaleTime } from '~/constants'
-import { StageI } from '~/models/training'
-
-const stages: StageI[] = [
-  {
-    title: '30 вдохов',
-    type: 'breathing',
-    time: (inhaleTime + exhalationTime) * 10
-  },
-  {
-    title: 'задержка дыхания',
-    type: 'breath-holding',
-    time: 60 * 1000
-  },
-  {
-    title: 'задержка воздуха',
-    type: 'air-holding',
-    time: 15 * 1000 + inhaleTime + exhalationTime
-  }
-]
+import { RootState } from '~/redux'
 
 export const MainScreen = () => {
   const [sound, setSound] = useState<Audio.Sound | null>(null)
-  const [type, setType] = useState<'inprogress' | 'chill'>('chill')
+  const [videoSource, setVideoSource] = useState(null!)
+  const [type, setType] = useState<'not-stared' | 'inprogress'>('not-stared')
   const [currentStagePointer, setCurrentStagePointer] = useState(-1)
+  const [currentRoundsCount, setCurrentRoundsCount] = useState(1)
+  const stages = useSelector((state: RootState) => state.settingsReducer.stages)
+  const rounds = useSelector((state: RootState) => state.settingsReducer.settings.rounds)
   const currentStage = useMemo(() => stages[currentStagePointer], [currentStagePointer])
 
   const insets = useSafeAreaInsets()
@@ -44,7 +30,7 @@ export const MainScreen = () => {
     if (type === 'inprogress') {
       await sound.stopAsync()
       setCurrentStagePointer(-1)
-      setType('chill')
+      setType('not-stared')
     } else {
       sound.playAsync()
       setType('inprogress')
@@ -53,13 +39,21 @@ export const MainScreen = () => {
   }
 
   const onStageDone = () => {
-    if (currentStagePointer === stages.length - 1) {
-      //проверка сколько раундов
-      setCurrentStagePointer(0)
+    if (currentStagePointer < stages.length - 1) {
+      setCurrentStagePointer(prev => prev + 1)
+
       return
     }
 
-    setCurrentStagePointer(prev => prev + 1)
+    setCurrentRoundsCount(prev => prev + 1)
+    if (currentRoundsCount < rounds) {
+      setCurrentStagePointer(0)
+    } else {
+      setCurrentStagePointer(-1)
+      setCurrentRoundsCount(1)
+      sound?.stopAsync()
+      setType('not-stared')
+    }
   }
 
   useEffect(() => {
@@ -69,14 +63,20 @@ export const MainScreen = () => {
       setSound(s)
     }
 
+    const setupVideo = async () => {
+      const { default: video } = await import('~/assets/background/gradient.mp4')
+      setVideoSource(video)
+    }
+
+    setupVideo()
     setupSound()
   }, [])
 
   useEffect(() => {
-    if (sound) {
-      return () => {
-        sound.unloadAsync()
-      }
+    if (!sound) return
+
+    return () => {
+      sound.unloadAsync()
     }
   }, [sound])
 
@@ -91,9 +91,7 @@ export const MainScreen = () => {
           width: '100%',
           height: '100%'
         }}
-        source={{
-          uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4'
-        }}
+        source={videoSource}
         resizeMode={ResizeMode.COVER}
         isLooping
         isMuted
@@ -101,7 +99,11 @@ export const MainScreen = () => {
       />
 
       <View style={{ ...styles['main-screen'], paddingTop: insets.top }}>
-        <Text style={styles['main-screen__title']}>{currentStage?.title}</Text>
+        <Text style={styles['main-screen__title']}>
+          {currentStage?.type === 'chill' && currentRoundsCount === rounds
+            ? 'Вы успешно справились!'
+            : currentStage?.title}
+        </Text>
 
         <View style={styles['main-screen__button-wrapper']}>
           <Button onPress={toggleTraining} onStageDone={onStageDone} stage={currentStage} type={type} />
@@ -114,17 +116,19 @@ export const MainScreen = () => {
 const styles = StyleSheet.create({
   'main-screen': {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center'
   },
   'main-screen__button-wrapper': {
-    marginBottom: 'auto'
+    position: 'absolute',
+    alignSelf: 'center',
+    top: '50%'
   },
   'main-screen__title': {
     color: '#fff',
+    paddingHorizontal: 20,
     fontSize: 25,
-    height: 28,
     fontWeight: '700',
-    marginBottom: 'auto'
+    textAlign: 'center',
+    width: '100%'
   }
 })

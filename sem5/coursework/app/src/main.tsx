@@ -5,9 +5,11 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { WithSafeArea } from './components/misc/WithSafeArea'
+import { getSettings } from './repo/query/settings'
 
 import { WithStatusBar } from '~/components/misc/WithStatusBar'
 import { RootState } from '~/redux'
+import { setSettings } from '~/redux/stores/settings'
 import { setUser } from '~/redux/stores/user'
 import { getUser } from '~/repo/query/users'
 import { database, openDatabase, setupDb } from '~/repo/sqlite'
@@ -41,6 +43,8 @@ export const Main = () => {
       if (user) {
         dispatch(setUser(user))
       }
+
+      dispatch(setSettings(await getSettings()))
 
       setIsSetupDone(true)
     }

@@ -2,15 +2,17 @@ import Icon from '@expo/vector-icons/Ionicons'
 import { useLayoutEffect, useRef } from 'react'
 import { TouchableOpacity, StyleSheet, Animated, View } from 'react-native'
 import Svg, { Circle } from 'react-native-svg'
+import { useSelector } from 'react-redux'
 
 import { exhalationTime, inhaleTime } from '~/constants'
 import { StageI } from '~/models/training'
+import { RootState } from '~/redux'
 
 type ButtonPropsT = {
   onPress: () => void
   onStageDone: () => void
   stage?: StageI
-  type: 'inprogress' | 'chill'
+  type: 'not-stared' | 'inprogress'
 }
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle)
@@ -20,6 +22,7 @@ const circumference = Math.PI * 2 * 100
 export const Button = ({ onPress, onStageDone, stage, type }: ButtonPropsT) => {
   const strokeDashoffsetAnimate = useRef(new Animated.Value(0)).current
   const scaleAnimate = useRef(new Animated.Value(1)).current
+  const breathsCount = useSelector((state: RootState) => state.settingsReducer.settings.breathsCount)
 
   useLayoutEffect(() => {
     const clear = () => {
@@ -29,19 +32,7 @@ export const Button = ({ onPress, onStageDone, stage, type }: ButtonPropsT) => {
 
     if (!stage) return clear
 
-    const dashoffsetAnimation = Animated.timing(strokeDashoffsetAnimate, {
-      toValue: -circumference,
-      duration: stage.time,
-      useNativeDriver: true
-    })
-    dashoffsetAnimation.start(a => {
-      if (!a.finished) return
-
-      onStageDone()
-    })
-
     let scaleAnimation: Animated.CompositeAnimation
-
     switch (stage.type) {
       case 'breathing':
         scaleAnimation = Animated.loop(
@@ -56,10 +47,14 @@ export const Button = ({ onPress, onStageDone, stage, type }: ButtonPropsT) => {
               duration: exhalationTime,
               useNativeDriver: false
             })
-          ])
+          ]),
+          {
+            iterations: breathsCount
+          }
         )
         break
       case 'breath-holding':
+      case 'chill':
         scaleAnimation = Animated.timing(scaleAnimate, {
           toValue: 1,
           useNativeDriver: false
@@ -86,8 +81,17 @@ export const Button = ({ onPress, onStageDone, stage, type }: ButtonPropsT) => {
         )
         break
     }
+    const dashoffsetAnimation = Animated.timing(strokeDashoffsetAnimate, {
+      toValue: -circumference,
+      duration: stage.time,
+      useNativeDriver: true
+    })
 
-    scaleAnimation.start()
+    Animated.parallel([scaleAnimation, dashoffsetAnimation]).start(a => {
+      if (!a.finished) return
+
+      onStageDone()
+    })
 
     return clear
   }, [stage])
@@ -121,7 +125,12 @@ export const Button = ({ onPress, onStageDone, stage, type }: ButtonPropsT) => {
           />
         </Svg>
       </View>
-      <Icon name={type === 'chill' ? 'caret-forward' : 'refresh-outline'} size={50} color="#fff" style={styles.icon} />
+      <Icon
+        name={type === 'not-stared' ? 'caret-forward' : 'refresh-outline'}
+        size={50}
+        color="#fff"
+        style={styles.icon}
+      />
     </AnimatedTouchable>
   )
 }

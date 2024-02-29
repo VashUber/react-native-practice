@@ -6,3 +6,12 @@ export interface SettingDbI {
   breath_holding: number
   air_holding: number
 }
+
+export interface SettingsI {
+  id: number
+  music: string
+  rounds: number
+  breathsCount: number
+  breathHolding: number
+  airHolding: number
+}

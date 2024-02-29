@@ -1,7 +1,7 @@
 import { database } from '../sqlite'
 
 import { songs } from '~/constants'
-import { SettingDbI } from '~/models/db/setting'
+import { SettingDbI, SettingsI } from '~/models/db'
 
 const defaultSetting = {
   id: 1,
@@ -21,14 +21,38 @@ export const createSettings = async (settings: SettingDbI = defaultSetting) => {
   })
 }
 
-export const updateSettings = async (settings: SettingDbI) => {
+export const updateSettings = async (settings: SettingsI) => {
   await database.instance.transactionAsync(async tx => {
     await tx.executeSqlAsync('update settings set rounds=?,breaths_count=?,breath_holding=?,air_holding=?,music=?', [
       settings.rounds,
-      settings.breaths_count,
-      settings.breath_holding,
-      settings.air_holding,
+      settings.breathsCount,
+      settings.breathHolding,
+      settings.airHolding,
       settings.music
     ])
   })
+}
+
+export const getSettings = async () => {
+  let settings: SettingDbI = null!
+
+  await database.instance.transactionAsync(async tx => {
+    const { rows } = await tx.executeSqlAsync('select * from settings')
+
+    const row = rows[0] as SettingDbI | undefined
+    if (row) {
+      settings = row
+    }
+  })
+
+  const s: SettingsI = {
+    id: settings.id,
+    rounds: settings.rounds,
+    breathsCount: settings.breaths_count,
+    breathHolding: settings.breath_holding,
+    airHolding: settings.air_holding,
+    music: settings.music
+  }
+
+  return s
 }

@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { TextInput, Text, Button, StyleSheet, View } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { DefaultLayout } from '~/layout'
-import { RootState } from '~/redux'
 import { setUser } from '~/redux/stores/user'
 import { createSettings } from '~/repo/query/settings'
 import { createUser, getUser } from '~/repo/query/users'
@@ -11,14 +10,13 @@ import { globalStyles } from '~/styles/global'
 
 export const RegistrationScreen = () => {
   const dispatch = useDispatch()
-  const db = useSelector((state: RootState) => state.databaseReducer.db)
   const [name, setName] = useState('')
 
   const runRegistration = async () => {
     await createUser({
       name
     })
-    await createSettings(db)
+    await createSettings()
     const user = await getUser()
     if (user) {
       dispatch(setUser(user))
