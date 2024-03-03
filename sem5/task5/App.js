@@ -1,6 +1,6 @@
-import { StyleSheet, View, SafeAreaView } from "react-native";
-import { CardsContainer } from "./components/common/cards-container/CardsContainer";
+import { SafeAreaView } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { CardsContainer } from "./components/common/cards-container/CardsContainer";
 
 const data = [
   {
